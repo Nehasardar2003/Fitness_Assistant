@@ -1,34 +1,37 @@
-**🏋️‍♂️ AI-Powered Fitness Trainer: Smart Home Workout Assistant 🤖**
+# Fitness Assistant 🏋️
 
-This project introduces an Android-based AI-powered fitness trainer that tracks and improves workout routines by providing real-time feedback on exercise form. The application leverages advanced technologies like MediaPipe, OpenCV, and machine learning models to analyze body movements, count repetitions, and ensure proper form during exercises. By providing instant posture correction and personalized guidance, the app helps users enhance workout effectiveness while minimizing injury risks, all from the comfort of their homes. 🏠💪
+A machine learning-powered Android application that serves as a personal fitness trainer, helping users track workouts, correct posture, and achieve their fitness goals with real-time feedback.
 
-🔑 Key Features:
-Pose Estimation: Uses MediaPipe to detect key body landmarks and analyze exercise poses in real time 🕺.
+---
 
-Repetition Counting: Automatically counts repetitions for supported exercises 📊.
+## 📋 Project Overview
+The **Fitness Assistant** app uses advanced pose estimation and computer vision techniques to analyze workout form, provide instant feedback on posture, and guide users through exercises. This project aims to make personalized fitness coaching accessible to everyone.
 
-Real-time Feedback: Provides live guidance and alerts to maintain proper form during workouts 🔄.
+---
 
-Video Processing: Utilizes OpenCV for real-time video stream processing from the device's camera 🎥.
+## 🌟 Features
+- **Real-Time Pose Estimation**: Uses MediaPipe and OpenCV for accurate body pose tracking during workouts.
+- **Workout Tracking**: Monitors repetitions, form, and posture for a variety of exercises.
+- **Feedback System**: Provides instant guidance to correct posture and avoid injury.
+- **Secure Data Storage**: Saves user data securely with Firebase.
 
-Seamless Communication: WebSocket enables real-time data transfer between the app and the server 🔗.
+---
 
-User Authentication: Firebase handles account creation, login, password recovery, and email verification 🔐.
+## 🛠️ Tech Stack
+- **Languages**: Python (backend), Java/Kotlin (Android)
+- **Libraries**: MediaPipe, OpenCV, Firebase
+- **Android Tools**: Camera2 API, Firebase Authentication, Firebase Database
 
-Camera Integration: The Camera2 API ensures high-quality video capture during workouts for accurate pose estimation 📸.
+---
 
-⚙️ Technologies Used:
+## 🚀 Getting Started
 
-MediaPipe for pose estimation 🧍‍♂️
+### Prerequisites
+- Android Studio installed
+- Basic understanding of Android development and Python
+- Firebase project setup with Authentication and Database enabled
 
-OpenCV for image processing 🖼️
-
-WebSocket for real-time communication 📡
-
-Firebase for user management and authentication 👥
-
-Camera2 API for high-quality video capture 🎬
-
-Machine Learning for pose analysis and feedback 🧠
-
-This project aims to make personal fitness more accessible and effective by offering a smart, user-friendly solution for home workouts. Whether you're working out at home due to gym closures or prefer a more cost-effective alternative to personal trainers, this app provides personalized fitness guidance, helping you achieve your health goals safely and efficiently. 🏋️‍♀️✨
+### Installation
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/Nehasardar2003/Fitness_Assistant.git
