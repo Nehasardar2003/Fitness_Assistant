@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    section#login {
+        min-height: 100vh;
+        display: flex;
+        align-items: flex-start; /* push content to top */
+        justify-content: center;
+        padding-top: 40px; /* reduced top padding */
+        padding-bottom: 40px;
+    }
+
+    .custom-card {
+        border-radius: 12px;
+        overflow: hidden;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .custom-card:hover {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .custom-header {
+        background-color: rgb(160, 23, 57);
+        font-size: 30px;
+        color: white;
+    }
+
+    .custom-card-body {
+        padding: 20px;
+    }
+
+    .form-floating input {
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        padding: 12px 15px;
+        width: 100%;
+    }
+
+    .form-floating label {
+        color: #666;
+        font-weight: 500;
+    }
+
+    .btn-xl {
+        padding: 10px 40px;
+        font-size: 18px;
+        background-color: rgb(160, 23, 57);
+        border: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-xl:hover {
+        background-color: rgb(230, 107, 85);
+    }
+
+    @media (max-width: 768px) {
+        section#login {
+            padding-top: 20px;
+        }
+
+        .custom-card {
+            margin-bottom: 20px;
+        }
+
+        .form-floating input {
+            font-size: 14px;
+            padding: 10px 12px;
+        }
+
+        .btn-xl {
+            padding: 8px 30px;
+            font-size: 16px;
+        }
+    }
+
+    .divider-custom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .divider-custom-line {
+        width: 100px;
+        height: 2px;
+        background-color: #ccc;
+    }
+
+    .divider-custom-icon {
+        margin: 0 15px;
+        font-size: 30px;
+        color: #007bff;
+    }
+
+    .page-section-heading {
+        font-size: 36px;
+        font-weight: 600;
+        margin: 0 0 10px 0; /* remove top margin */
+        padding: 0;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .container-padding {
+        padding: 10px;
+    }
+</style>
+
+<section class="page-section" id="login">
+    <div class="container">
+        <!-- Login Heading -->
+        <h2 class="page-section-heading text-center text-uppercase mb-2" style="color: white;margin-top:80px;">Login</h2>
+
+        <!-- Divider -->
+        <div class="divider-custom">
+            <div class="divider-custom-line"></div>
+            <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+            <div class="divider-custom-line"></div>
+        </div>
+
+        <!-- Login Card -->
+        <div class="container container-padding">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="card shadow-lg border-0 custom-card">
+                        <div class="card-header custom-header text-center">Login</div>
+                        <div class="card-body custom-card-body">
+                            <form action="{% url 'login' %}" method="post">
+                                {% csrf_token %}
+                                <div class="form-floating mb-3">
+                                    <input class="form-control" id="username" name="username" type="email" placeholder="name@example.com" required />
+                                    <label for="username">Email Address</label>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <input class="form-control" id="password" name="password" type="password" placeholder="Enter your password" required />
+                                    <label for="password">Password</label>
+                                </div>
+                                <div class="text-center mt-3">
+                                    <button class="btn btn-primary btn-xl" type="submit">Login</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Optional Messages -->
+        <div class="d-none" id="submitSuccessMessage">
+            <div class="text-center mb-3">
+                <div class="fw-bolder">Your message has been sent successfully!</div>
+                <a href="https://startbootstrap.com/solution/contact-forms">View more contact forms</a>
+            </div>
+        </div>
+        <div class="d-none" id="submitErrorMessage">
+            <div class="text-center text-danger mb-3">Error sending message!</div>
+        </div>
+    </div>
+</section>
+
+{% endblock body %}

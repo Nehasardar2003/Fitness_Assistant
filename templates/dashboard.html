@@ -1,0 +1,589 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+<div class="main-container">
+    <!-- User Profile Button -->
+    <!-- Profile Section moved to bottom-right inside main-container -->
+<div class="profile-wrapper">
+    <button class="profile-icon" onclick="toggleProfile()">👤</button>
+    <div id="profileBox" class="profile-box">
+        <p><strong>Name:</strong> <span id="profileName"></span></p>
+        <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+        <p><strong>Phone:</strong> <span id="profilePhone"></span></p>
+        <p><strong>Age:</strong> <span id="profileAge"></span></p>
+        <p><strong>Height:</strong> <span id="profileHeight"></span></p>
+        <p><strong>Weight:</strong> <span id="profileWeight"></span></p>
+        <button onclick="toggleProfile()">Close</button>
+    </div>
+</div>
+
+
+    <!-- Exercise Table -->
+    <div class="exercise-table-container">
+        <h3 style="color:white;">Last 5 Days' Exercises</h3>
+        <table id="exerciseTable" class="exercise-table" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Exercises</th>
+                </tr>
+            </thead>
+            <tbody id="exerciseTableBody">
+                <!-- Data will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Exercise Dropdown and Info -->
+    <div class="dropdown-container">
+        <label for="exerciseDropdown" class="dropdown-label" style="color:white;">Select an Exercise:</label>
+        <select id="exerciseDropdown" class="dropdown" onchange="updateInfo()">
+            <option value="" disabled selected>Select an exercise</option>
+            {% for exercise in exercises %}
+            <option value="{{ exercise.pose_name }}">{{ exercise.pose_name }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Info Box -->
+        <div id="infoBox" class="info-box">
+            <p id="exerciseInfo">Select an exercise to see details.</p>
+            <button id="startExerciseBtn" class="start-exercise-btn" onclick="startExercise()">Start Exercise</button>
+
+            <!-- Video Section -->
+            <video id="exerciseVideo" width="230" height="230" controls style="display: none; margin-top:10px;">
+                <source id="videoSource" src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div class="chatbot-container">
+        <button class="chatbot-icon" onclick="toggleChat()">💬</button>
+        <div id="chatbox" class="chatbox">
+            <div id="chatHistory"></div>
+            <input type="text" id="userInput" placeholder="Ask something..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</div>
+
+<!-- CSS -->
+<style>
+/* ============================
+   GLOBAL PAGE BACKGROUND
+   ============================ */
+
+/* Apply background to html and body */
+html, body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background: url("/static/images/hero-bg.jpg") no-repeat center center fixed !important;
+    background-size: cover !important;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Remove any background from body tag if set from elsewhere */
+body {
+    background: none !important;
+}
+
+/* Fix for mobile devices */
+@media screen and (max-width: 768px) {
+    html, body {
+        background-attachment: scroll !important;
+    }
+}
+
+/* ============================
+   MAIN LAYOUT & CONTENT
+   ============================ */
+
+.main-container {
+    flex: 1;
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.5); /* optional: subtle background for readability */
+    border-radius: 10px;
+}
+
+/* ============================
+   DROPDOWN
+   ============================ */
+
+.dropdown-container {
+    width: 100%;
+}
+
+.dropdown {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    background-color: white;
+    color: #333;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.dropdown:hover {
+    border-color: #0056b3;
+}
+
+/* ============================
+   INFO BOX
+   ============================ */
+
+.info-box {
+    margin-top: 10px;
+    padding: 15px;
+    border: 2px solid #000;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    font-size: 16px;
+    color: #333;
+    display: none;
+}
+
+/* ============================
+   START EXERCISE BUTTON
+   ============================ */
+
+.start-exercise-btn {
+    margin-top: 10px;
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.start-exercise-btn:hover {
+    background-color: #218838;
+}
+
+/* ============================
+   CHATBOT
+   ============================ */
+
+.chatbot-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.chatbot-icon {
+    background: #007bff;
+    color: white;
+    font-size: 20px;
+    padding: 10px 15px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+}
+
+.chatbox {
+    display: none;
+    width: 90vw;
+    max-width: 400px;
+    height: 320px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+}
+
+#chatHistory {
+    height: 250px;
+    overflow-y: auto;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+
+#userInput {
+    width: 65%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.chatbox button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-left: 10px;
+}
+
+/* ============================
+   PROFILE SECTION
+   ============================ */
+
+.profile-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-bottom: 10px;
+}
+
+.profile-icon {
+    background: #007bff;
+    color: white;
+    font-size: 20px;
+    padding: 10px 15px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+}
+
+.profile-box {
+    display: none;
+    width: 230px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    margin-top: 10px;
+}
+
+/* ============================
+   EXERCISE TABLE
+   ============================ */
+
+.exercise-table-container {
+    width: 100%;
+}
+
+.exercise-table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+    background-color: white;
+}
+
+.exercise-table th,
+.exercise-table td {
+    border: 1px solid #000;
+    padding: 10px;
+    text-align: center;
+}
+
+.exercise-table th {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Scrollable long exercise list */
+.scrollable-exercise {
+    max-height: 70px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 5px;
+    background-color: #f9f9f9;
+}
+
+/* ============================
+   RESPONSIVE DESIGN
+   ============================ */
+
+@media screen and (max-width: 1024px) {
+    .main-container {
+        width: 95%;
+        padding: 20px 15px;
+    }
+
+    .profile-box {
+        width: 250px;
+    }
+
+    .chatbox {
+        width: 95vw;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .main-container {
+        width: 96%;
+        padding: 15px 10px;
+    }
+
+    .dropdown,
+    .info-box,
+    .exercise-table-container {
+        width: 100%;
+    }
+
+    .profile-box {
+        width: 90vw;
+    }
+
+    .chatbox {
+        width: 90vw;
+    }
+
+    video {
+        width: 100% !important;
+        height: auto !important;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .chatbox {
+        height: 300px;
+    }
+
+    #chatHistory {
+        height: 220px;
+    }
+
+    #userInput {
+        width: 60%;
+    }
+
+    .chatbox button {
+        padding: 6px 8px;
+        font-size: 14px;
+    }
+}
+
+
+</style>
+
+<script>
+    // Store exercise details dynamically from Django context
+    const exerciseDetails = {
+        {% for exercise in exercises %}
+    "{{ exercise.pose_name }}": "{{ exercise.description }}",
+        {% endfor %}
+    };
+
+    function updateInfo() {
+        const dropdown = document.getElementById("exerciseDropdown");
+        const infoBox = document.getElementById("infoBox");
+        const exerciseInfo = document.getElementById("exerciseInfo");
+        const exerciseVideo = document.getElementById("exerciseVideo");
+        const videoSource = document.getElementById("videoSource");
+
+        const selectedValue = dropdown.value;
+
+        if (selectedValue) {
+            exerciseInfo.textContent = exerciseDetails[selectedValue];
+            infoBox.style.display = "block"; // Show info box
+
+            // Update video source dynamically
+            videoSource.src = `/media/videos/${selectedValue}.mp4`;  // Adjust path based on your Django MEDIA_URL
+            exerciseVideo.style.display = "block"; // Show video
+            exerciseVideo.load();  // Reload video to apply new source
+        } else {
+            infoBox.style.display = "none"; // Hide info box
+            exerciseVideo.style.display = "none"; // Hide video
+        }
+    }
+
+    function startExercise() {
+        let dropdown = document.getElementById("exerciseDropdown");
+        let selectedExercise = dropdown.value;
+    
+        if (!selectedExercise) {
+            alert("Please select an exercise first!");
+            return;
+        }
+    
+        fetch("/start_exercise/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCSRFToken()
+            },
+            body: "exercise_name=" + encodeURIComponent(selectedExercise)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                alert(data.message);
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    // Function to retrieve CSRF token from cookies
+    function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            let cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
+                if (cookie.startsWith("csrftoken=")) {
+                    cookieValue = cookie.substring("csrftoken=".length, cookie.length);
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function toggleChat() {
+        const chatbox = document.getElementById("chatbox");
+        chatbox.style.display = chatbox.style.display === "block" ? "none" : "block";
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+    }
+
+    async function sendMessage() {
+        const userInput = document.getElementById("userInput").value;
+        if (!userInput.trim()) return;
+
+        const chatHistory = document.getElementById("chatHistory");
+        chatHistory.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+
+        document.getElementById("userInput").value = "";
+
+        // Send request to Django backend
+        try {
+            const response = await fetch("/chatbot-response/", {  // Ensure this URL matches your Django URL pattern
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken() // Include CSRF token if CSRF protection is enabled
+                },
+                body: JSON.stringify({ message: userInput })
+            });
+
+            const data = await response.json();
+            if (data.response) {
+                chatHistory.innerHTML += `<p><strong>Chatbot:</strong> ${data.response}</p>`;
+            } else {
+                chatHistory.innerHTML += `<p><strong>Chatbot:</strong> Sorry, I didn't understand that.</p>`;
+            }
+
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        } catch (error) {
+            console.error("Error:", error);
+            chatHistory.innerHTML += `<p><strong>Chatbot:</strong> Error processing your request.</p>`;
+        }
+    }
+
+    // Function to get CSRF Token (if CSRF is enabled)
+    function getCSRFToken() {
+        return document.cookie.split('; ')
+            .find(row => row.startsWith('csrftoken'))
+            ?.split('=')[1];
+    }
+
+
+    function toggleProfile() {
+        const profileBox = document.getElementById("profileBox");
+
+        if (profileBox.style.display === "block") {
+            profileBox.style.display = "none";
+        } else {
+            fetchProfileData(); // Fetch profile data when opening
+            profileBox.style.display = "block";
+        }
+    }
+
+    async function fetchProfileData() {
+        try {
+            const response = await fetch("get-profile", {
+                method: "GET",
+                headers: { "Content-Type": "application/json" }
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById("profileName").textContent = data.first_name + " " + data.last_name;
+                document.getElementById("profileEmail").textContent = data.username;
+                document.getElementById("profilePhone").textContent = data.phone;
+                document.getElementById("profileAge").textContent = data.age;
+                document.getElementById("profileHeight").textContent = data.height;
+                document.getElementById("profileWeight").textContent = data.weight;
+                document.getElementById("profileAddress").textContent = data.address;
+            } else {
+                alert("Error fetching profile data.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+
+
+   document.addEventListener("DOMContentLoaded", fetchLastFiveDaysExercises);
+
+function fetchLastFiveDaysExercises() {
+    const exerciseTable = document.getElementById("exerciseTable");
+    const exerciseTableBody = document.getElementById("exerciseTableBody");
+
+    fetch(`get_exercises_last_five_days/`)
+        .then(response => response.json())
+        .then(data => {
+            exerciseTableBody.innerHTML = ""; // Clear previous data
+
+            if (Object.keys(data.exercises).length === 0) {
+                exerciseTable.style.display = "none";
+                alert("No exercises found for the last 5 days.");
+                return;
+            }
+
+            exerciseTable.style.display = "table"; // Show table
+
+            let rows = "";
+            Object.entries(data.exercises).forEach(([date, exercises]) => {
+                let formattedExercises = exercises.map((exercise, index) => {
+                    const suffix = getNumberSuffix(index + 1);
+                    return `<div>${index + 1}${suffix} Exercise: ${exercise}</div>`;
+                }).join("");
+
+                // Wrap exercises in a scrollable div if there are more than 3 exercises
+                let exerciseContent = exercises.length > 3 
+                    ? `<div class="scrollable-exercise">${formattedExercises}</div>` 
+                    : formattedExercises;
+
+                rows += `<tr><td><strong>${date}</strong></td><td>${exerciseContent}</td></tr>`;
+            });
+
+            exerciseTableBody.innerHTML = rows;
+        })
+        .catch(error => console.error("Error fetching exercises:", error));
+}
+
+// Function to get ordinal suffix (1st, 2nd, 3rd, etc.)
+function getNumberSuffix(number) {
+    if (number % 10 === 1 && number % 100 !== 11) return "st";
+    if (number % 10 === 2 && number % 100 !== 12) return "nd";
+    if (number % 10 === 3 && number % 100 !== 13) return "rd";
+    return "th";
+}
+
+
+</script>
+
+{% endblock body %}
